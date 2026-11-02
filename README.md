@@ -23,4 +23,8 @@ Open http://localhost:3000. The frontend proxies `/api` to the API service, so o
 both. First boot installs dependencies (a minute or two); later boots are fast, and code edits
 hot-reload on both sides.
 
+## Documentation
+
+- [`docs/requirements.md`](docs/requirements.md) — feature requirements, acceptance criteria, and what's still missing.
+
 See `AGENTS.md` for setup details and verification commands.
