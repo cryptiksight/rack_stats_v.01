@@ -23,9 +23,17 @@ browser talks to a single origin (no CORS, cookies stay simple).
 - **Dependencies install on container start**, not in an image: `pip install -r requirements.txt`
   for the API and `npm install` for the web app. Both run against the bind-mounted source.
   This keeps edits live but means the first boot is slower; later boots are cached.
-- **No migration tool.** Tables are created by `Base.metadata.create_all` during API startup
-  (`api/app/main.py`), which retries for ~30s while Postgres comes up. Adding a column to an
-  existing volume requires dropping the volume or a manual `ALTER TABLE`.
+- **Schema is managed by Alembic** (`api/migrations`). On startup the API waits for Postgres, then
+  runs `alembic upgrade head` (`api/app/main.py`); a database built before Alembic existed is
+  stamped at `0001_initial` first, so nothing is rebuilt. Add a revision with
+  `docker compose -f docker-compose.base44.yml exec api alembic revision -m "..."` and apply it by
+  restarting the api service or running `alembic upgrade head`. Never edit a revision that has
+  already been applied.
+- **Teams are rows, not labels.** `players.team_id` references `teams.id` (the old free-text
+  `players.team` column was dropped in `0002_teams`, which backfilled existing labels into team
+  rows). The API still accepts and returns a team *name* in player payloads and creates the team on
+  demand; there is no team CRUD endpoint or team page yet. The FK restricts deleting a team that
+  still has players.
 - **Seed data** (`api/app/seed.py`) loads only when the `players` table is empty — 9 players on
   3 teams and 8 logged races. Delete a row, restart the API and it will not re-seed unless the
   table is fully empty.

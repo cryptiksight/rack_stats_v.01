@@ -1,31 +1,49 @@
 import time
 from contextlib import asynccontextmanager
+from pathlib import Path
 
+from alembic import command
+from alembic.config import Config
 from fastapi import FastAPI
+from sqlalchemy import inspect
 from sqlalchemy.exc import OperationalError
 
-from .db import Base, SessionLocal, engine
+from .db import SessionLocal, engine
 from .routers import matches, players, stats
 from .seed import seed_if_empty
 
+API_ROOT = Path(__file__).resolve().parent.parent
+BASELINE_REVISION = "0001_initial"
 
-def init_database(attempts: int = 30) -> None:
+
+def wait_for_database(attempts: int = 30) -> None:
     for attempt in range(attempts):
         try:
-            Base.metadata.create_all(engine)
-            break
+            with engine.connect():
+                return
         except OperationalError:
             if attempt == attempts - 1:
                 raise
             time.sleep(1)
 
-    with SessionLocal() as db:
-        seed_if_empty(db)
+
+def migrate() -> None:
+    config = Config(str(API_ROOT / "alembic.ini"))
+    config.set_main_option("script_location", str(API_ROOT / "migrations"))
+
+    tables = set(inspect(engine).get_table_names())
+    # Databases built by the old create_all path already match the baseline schema.
+    if "players" in tables and "alembic_version" not in tables:
+        command.stamp(config, BASELINE_REVISION)
+    command.upgrade(config, "head")
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    init_database()
+    wait_for_database()
+    migrate()
+    with SessionLocal() as db:
+        seed_if_empty(db)
     yield
 
 

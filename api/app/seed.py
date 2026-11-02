@@ -3,7 +3,7 @@ from datetime import date, timedelta
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from .models import Match, Player
+from .models import Match, Player, Team
 
 PLAYERS = [
     ("Maria Alvarez", "Break & Run", 5, "APA-10421"),
@@ -34,9 +34,18 @@ def seed_if_empty(db: Session) -> None:
     if db.scalar(select(Player.id).limit(1)) is not None:
         return
 
+    teams = {name: Team(name=name) for name in sorted({row[1] for row in PLAYERS})}
+    db.add_all(teams.values())
+    db.flush()
+
     players = {}
     for name, team, skill, apa_number in PLAYERS:
-        player = Player(name=name, team=team, skill_level=skill, apa_number=apa_number)
+        player = Player(
+            name=name,
+            team=teams[team],
+            skill_level=skill,
+            apa_number=apa_number,
+        )
         db.add(player)
         players[name] = player
     db.flush()

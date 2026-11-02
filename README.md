@@ -23,6 +23,16 @@ Open http://localhost:3000. The frontend proxies `/api` to the API service, so o
 both. First boot installs dependencies (a minute or two); later boots are fast, and code edits
 hot-reload on both sides.
 
+## Schema changes
+
+The schema lives in Alembic migrations under `api/migrations`, and the API applies them on startup.
+To add one:
+
+```bash
+docker compose -f docker-compose.base44.yml exec api alembic revision -m "add foo"
+docker compose -f docker-compose.base44.yml exec api alembic upgrade head
+```
+
 ## Documentation
 
 - [`docs/requirements.md`](docs/requirements.md) — feature requirements, acceptance criteria, and what's still missing.

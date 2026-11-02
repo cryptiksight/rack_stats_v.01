@@ -1,5 +1,3 @@
-from collections import defaultdict
-
 from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -14,7 +12,7 @@ def _blank_row(player: Player) -> dict:
     return {
         "player_id": player.id,
         "name": player.name,
-        "team": player.team,
+        "team": player.team.name,
         "skill_level": player.skill_level,
         "matches": 0,
         "wins": 0,
@@ -59,9 +57,9 @@ def team_stats(db: Session = Depends(get_db)):
     teams: dict[str, dict] = {}
     for player in players:
         teams.setdefault(
-            player.team,
+            player.team.name,
             {
-                "team": player.team,
+                "team": player.team.name,
                 "players": 0,
                 "matches": 0,
                 "wins": 0,
@@ -71,7 +69,7 @@ def team_stats(db: Session = Depends(get_db)):
             },
         )["players"] += 1
 
-    team_of = {p.id: p.team for p in players}
+    team_of = {p.id: p.team.name for p in players}
     for match in db.scalars(select(Match)).all():
         a_won = match.player_a_score == match.player_a_skill
         for player_id, scored, allowed, won in (
