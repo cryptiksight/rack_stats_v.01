@@ -31,9 +31,10 @@ browser talks to a single origin (no CORS, cookies stay simple).
   already been applied.
 - **Teams are rows, not labels.** `players.team_id` references `teams.id` (the old free-text
   `players.team` column was dropped in `0002_teams`, which backfilled existing labels into team
-  rows). The API still accepts and returns a team *name* in player payloads and creates the team on
-  demand; there is no team CRUD endpoint or team page yet. The FK restricts deleting a team that
-  still has players.
+  rows). Teams also carry an optional `logo` (an image URL or short badge text) and `description`
+  (`0003_team_profile`). The Teams page (`/teams`) creates, renames, relabels and deletes them via
+  `/api/teams`; player payloads still take a team *name* and create the team on demand. Deleting a
+  team that still has players is refused with a 409, so move the players first.
 - **Seed data** (`api/app/seed.py`) loads only when the `players` table is empty — 9 players on
   3 teams and 8 logged races. Delete a row, restart the API and it will not re-seed unless the
   table is fully empty.
@@ -66,6 +67,8 @@ docker compose -f docker-compose.base44.yml exec -T web npx tsc --noEmit
 | GET | `/api/health` | liveness |
 | GET/POST | `/api/players` | roster |
 | PATCH/DELETE | `/api/players/{id}` | edit skill level / team, remove |
+| GET/POST | `/api/teams` | team list with roster size / create a team |
+| PATCH/DELETE | `/api/teams/{id}` | rename, set logo & description, delete (409 while players remain) |
 | GET/POST | `/api/matches` | race log, record a race |
 | DELETE | `/api/matches/{id}` | remove a race |
 | GET | `/api/stats/players` | per-player standings |

@@ -170,12 +170,13 @@ Priorities: **M** = must have for v0.1, **S** = should have, **C** = could have.
 | History filters / pagination | Not built | Fixed limit only |
 | Win rate & standings | Built | Player + team tables, 0-race players show `—` |
 | League summary | Built | Players, teams, races, points, avg points/race |
-| Teams as first-class records | **Partial** | `teams` table and `players.team_id` FK exist (`0002_teams` migration, existing labels backfilled); no team create / rename / delete endpoints, no team detail page |
+| Teams as first-class records | Built | `teams` table with logo + description (`0002_teams`, `0003_team_profile`), `/api/teams` create / rename / delete, Teams page with logo, description and league record |
 | Auth / roles | Out of scope | Single trusted operator |
 
-The largest gap against these requirements is **FR-2**: teams are now stored as their own records,
-but nothing can create, rename or delete one yet — a team appears only when a player is added with
-that team name, and renaming still means editing every player by hand.
+Team management (FR-2) is built: the Teams page creates, renames and deletes teams, and a rename
+follows to every player without touching logged results. The remaining gap in FR-2 is FR-2.3 — the
+team card shows roster size and record, but there is no per-team roster view yet (use the Players
+page, which lists each player's team and skill level).
 
 ## 9. Out of scope for v0.1
 

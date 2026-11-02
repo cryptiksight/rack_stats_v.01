@@ -6,6 +6,14 @@ export interface Player {
   apa_number: string | null;
 }
 
+export interface Team {
+  id: number;
+  name: string;
+  logo: string | null;
+  description: string | null;
+  players: number;
+}
+
 export interface Match {
   id: number;
   played_on: string;

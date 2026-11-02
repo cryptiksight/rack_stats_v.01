@@ -7,6 +7,7 @@ APA scorekeeper and stats tracker.
 - **Scorekeeper** — pick two players, each races to their APA skill level; tap games as they're
   won, the first to their number takes the race, then save it to the log.
 - **Players** — roster with team, APA number and adjustable skill level (2–7).
+- **Teams** — create, rename and delete teams; each keeps a logo, a description and its league record.
 - **Match log** — every race, newest first, with delete.
 
 ## Stack

@@ -31,6 +31,28 @@ class PlayerOut(BaseModel):
     apa_number: str | None
 
 
+class TeamCreate(BaseModel):
+    name: str = Field(min_length=1, max_length=80)
+    logo: str | None = Field(default=None, max_length=500)
+    description: str | None = Field(default=None, max_length=500)
+
+
+class TeamUpdate(BaseModel):
+    name: str | None = Field(default=None, min_length=1, max_length=80)
+    logo: str | None = Field(default=None, max_length=500)
+    description: str | None = Field(default=None, max_length=500)
+
+
+class TeamOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    name: str
+    logo: str | None
+    description: str | None
+    players: int
+
+
 class MatchCreate(BaseModel):
     player_a_id: int
     player_b_id: int

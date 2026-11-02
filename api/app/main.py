@@ -9,7 +9,7 @@ from sqlalchemy import inspect
 from sqlalchemy.exc import OperationalError
 
 from .db import SessionLocal, engine
-from .routers import matches, players, stats
+from .routers import matches, players, stats, teams
 from .seed import seed_if_empty
 
 API_ROOT = Path(__file__).resolve().parent.parent
@@ -51,6 +51,7 @@ app = FastAPI(title="APA Tracker API", version="0.1.0", lifespan=lifespan)
 app.include_router(players.router)
 app.include_router(matches.router)
 app.include_router(stats.router)
+app.include_router(teams.router)
 
 
 @app.get("/api/health")

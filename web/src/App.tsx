@@ -3,11 +3,13 @@ import DashboardPage from "./pages/DashboardPage";
 import MatchesPage from "./pages/MatchesPage";
 import PlayersPage from "./pages/PlayersPage";
 import ScorekeeperPage from "./pages/ScorekeeperPage";
+import TeamsPage from "./pages/TeamsPage";
 
 const links = [
   { to: "/", label: "Standings" },
   { to: "/scorekeeper", label: "Scorekeeper" },
   { to: "/players", label: "Players" },
+  { to: "/teams", label: "Teams" },
   { to: "/matches", label: "Match log" },
 ];
 
@@ -41,6 +43,7 @@ export default function App() {
           <Route path="/" element={<DashboardPage />} />
           <Route path="/scorekeeper" element={<ScorekeeperPage />} />
           <Route path="/players" element={<PlayersPage />} />
+          <Route path="/teams" element={<TeamsPage />} />
           <Route path="/matches" element={<MatchesPage />} />
           <Route path="*" element={<p className="empty">That page doesn't exist.</p>} />
         </Routes>
