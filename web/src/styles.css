@@ -287,6 +287,37 @@ table.data tbody tr:last-child td {
   color: var(--red);
 }
 
+.row-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.row-edit > td {
+  background: rgba(63, 210, 163, 0.05);
+}
+
+.row-edit-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  padding: 4px 0 6px;
+}
+
+.row-edit-form .field {
+  flex: 1 1 150px;
+}
+
+.row-edit-form .field.narrow {
+  flex: 0 0 110px;
+}
+
+.row-edit-actions {
+  display: flex;
+  gap: 8px;
+}
+
 .tag {
   display: inline-block;
   padding: 2px 9px;

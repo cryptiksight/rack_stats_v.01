@@ -66,7 +66,8 @@ docker compose -f docker-compose.base44.yml exec -T web npx tsc --noEmit
 | --- | --- | --- |
 | GET | `/api/health` | liveness |
 | GET/POST | `/api/players` | roster |
-| PATCH/DELETE | `/api/players/{id}` | edit skill level / team, remove |
+| GET | `/api/players/{id}` | one player |
+| PATCH/DELETE | `/api/players/{id}` | edit name / team / skill level / APA #, remove |
 | GET/POST | `/api/teams` | team list with roster size / create a team |
 | PATCH/DELETE | `/api/teams/{id}` | rename, set logo & description, delete (409 while players remain) |
 | GET/POST | `/api/matches` | race log, record a race |

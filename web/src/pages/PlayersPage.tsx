@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { request, useApi } from "../api";
+import PlayerRow from "../components/PlayerRow";
 import type { Player } from "../types";
 
 const SKILL_LEVELS = [2, 3, 4, 5, 6, 7];
@@ -37,20 +38,6 @@ export default function PlayersPage() {
     } finally {
       setSaving(false);
     }
-  }
-
-  async function changeSkill(player: Player, skillLevel: number) {
-    await request<Player>(`/players/${player.id}`, {
-      method: "PATCH",
-      body: JSON.stringify({ skill_level: skillLevel }),
-    });
-    refresh();
-  }
-
-  async function removePlayer(player: Player) {
-    if (!confirm(`Remove ${player.name}? Their races will be deleted too.`)) return;
-    await request<void>(`/players/${player.id}`, { method: "DELETE" });
-    refresh();
   }
 
   return (
@@ -140,30 +127,7 @@ export default function PlayersPage() {
               </thead>
               <tbody>
                 {players.map((player) => (
-                  <tr key={player.id}>
-                    <td className="strong">{player.name}</td>
-                    <td className="muted">{player.team}</td>
-                    <td className="muted">{player.apa_number ?? "—"}</td>
-                    <td>
-                      <select
-                        className="inline-select"
-                        value={player.skill_level}
-                        aria-label={`Skill level for ${player.name}`}
-                        onChange={(event) => changeSkill(player, Number(event.target.value))}
-                      >
-                        {SKILL_LEVELS.map((level) => (
-                          <option key={level} value={level}>
-                            SL{level}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td className="num">
-                      <button className="btn danger small" onClick={() => removePlayer(player)}>
-                        Remove
-                      </button>
-                    </td>
-                  </tr>
+                  <PlayerRow key={player.id} player={player} teams={teams} onChanged={refresh} />
                 ))}
               </tbody>
             </table>
