@@ -1,0 +1,88 @@
+name: apa-tracker
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: apa
+      POSTGRES_PASSWORD: apa_dev_password
+      POSTGRES_DB: apa_stats
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U apa -d apa_stats"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    restart: on-failure
+
+  api:
+    image: python:3.12-slim
+    working_dir: /app
+    command: >
+      sh -ec "pip install --no-cache-dir -q -r requirements.txt &&
+      exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    volumes:
+      - ./api:/app
+      - pipcache:/root/.cache/pip
+    environment:
+      DATABASE_URL: postgresql+psycopg://apa:apa_dev_password@db:5432/apa_stats
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3).status == 200 else 1)",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 45s
+    restart: on-failure
+    labels:
+      base44.project: "APA Tracker API"
+      base44.kind: api
+      base44.port: 8000
+
+  web:
+    image: node:22-bookworm-slim
+    working_dir: /app
+    command: >
+      sh -ec "npm install --no-audit --no-fund &&
+      exec npm run dev -- --host 0.0.0.0 --port 5173"
+    volumes:
+      - ./web:/app
+    ports:
+      - "3000:5173"
+    environment:
+      - VITE_API_PROXY_TARGET=http://api:8000
+      - __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS
+      - BASE44_PREVIEW_MODE
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:5173/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 60s
+    restart: on-failure
+    labels:
+      base44.project: "APA Tracker"
+      base44.kind: web
+      base44.port: 3000
+
+volumes:
+  pgdata:
+  pipcache:
